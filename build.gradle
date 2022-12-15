@@ -1,0 +1,21 @@
+plugins {
+	id 'war'
+	id 'com.netflix.nebula.resolution-rules' version '10.0.0' apply false
+}
+
+configure(subprojects.findAll { ['backend', 'shared'].contains(it.name) }) {
+	apply plugin: 'groovy'
+	apply plugin: 'com.netflix.nebula.resolution-rules'
+
+	sourceSets {
+		production
+	}
+}
+
+tasks.named('war').configure {
+	def backend = project('backend')
+
+	classpath backend
+		.productionSourceSets
+		.collectMany { it.sourceSet.runtimeClasspath.toList() }
+}

@@ -1,0 +1,20 @@
+sourceSets {
+	backend
+}
+
+ext.sourceSetDependencies = [
+	(sourceSets.production): [sourceSets.backend],
+]
+
+dependencies {
+	backendImplementation project(':shared')
+}
+
+def allSourceSetDependencies(...sourceSets) {
+	sourceSets
+		.collectMany { allSourceSetDependencies(*sourceSetDependencies.getOrDefault(it, [])) }
+		.plus(sourceSets.toList())
+		.unique()
+}
+
+ext.productionSourceSets = allSourceSetDependencies(sourceSets.production).collect { [project: project, sourceSet: it] }
